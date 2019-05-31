@@ -61,45 +61,45 @@
                 </a>
                 <div class="dropdown-menu" aria-labelledby="pagesDropdown">
                     <h6 class="dropdown-header">Login Screens:</h6>
-                    @*<a class="dropdown-item" id="loginLink" href=@Url.Action("Login", "Account", routeValues: null)>Log In</a>
-                        <a class="dropdown-item" id="registerLink" href=@Url.Action("Register", "Account", routeValues: null)>Register</a>
-                        <a class="dropdown-item" href="@Url.Action("ForgotPassword", "Account", routeValues: null)">Forgot Password</a>*@
+                    <a class="dropdown-item" id="loginLink" href=@Url.Action("Login", "Account", routeValues: null)>Log In</a>
+                    <a class="dropdown-item" id="registerLink" href=@Url.Action("Register", "Account", routeValues: null)>Register</a>
+                    <a class="dropdown-item" href="@Url.Action("ForgotPassword", "Account", routeValues: null)">Forgot Password</a>
                 </div>
             </li>
 
 
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("ManageUsers", "Home")">
+                <a class="nav-link" href="@Url.Action("ViewHousehold", "Household")">
                     @*<i class="fas fa-fw fa-chart-area"></i>*@
-                    <span> Manage Users</span>
+                    <span>View Households</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("AllProjects", "Home")">
+                <a class="nav-link" href="@Url.Action("CreateHousehold", "Household")">
                     @*<i class="fas fa-fw fa-chart-area"></i>*@
-                    <span> All Projects</span>
+                    <span>Create Households</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("MyProjects", "Home")">
+                <a class="nav-link" href="@Url.Action("InviteUsers", "Household")">
                     @*<i class="fas fa-fw fa-chart-area"></i>*@
-                    <span> My Projects</span>
+                    <span>Invite Users</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <details>
-                    <summary style="color:rgba(255, 255, 255, 0.5);"> Tickets</summary>
+                    <summary style="color:rgba(255, 255, 255, 0.5);"> Join/Leave</summary>
 
 
-                    <a class="nav-link" href="@Url.Action("AllTickets", "Tickets")">
-                        <span> All Tickets</span>
+                    <a class="nav-link" href="@Url.Action("JoinHousehold", "Household")">
+                        <span>Join</span>
                     </a>
 
-                    <a class="nav-link" href="@Url.Action("MyTickets", "Tickets")">
-                        <span> My Tickets</span>
+                    <a class="nav-link" href="@Url.Action("LeaveHousehold", "Household")">
+                        <span>Leave</span>
                     </a>
                 </details>
                 @*<i class="fas fa-fw fa-table"></i>*@

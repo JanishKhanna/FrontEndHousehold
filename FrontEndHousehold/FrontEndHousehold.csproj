@@ -120,10 +120,19 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HouseholdController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Domain\Household.cs" />
+    <Compile Include="Models\Domain\LoginData.cs" />
+    <Compile Include="Models\ViewModel\CreateHouseholdViewModel.cs" />
+    <Compile Include="Models\ViewModel\ErrorViewModel.cs" />
+    <Compile Include="Models\ViewModel\LoginViewModel.cs" />
+    <Compile Include="Models\ViewModel\RegisterViewModel.cs" />
+    <Compile Include="Models\ViewModel\ViewHouseholdViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1910,10 +1919,13 @@
     <Content Include="Template\vendor\fontawesome-free\webfonts\fa-solid-900.woff2" />
     <Content Include="Template\vendor\jquery\jquery.min.map" />
     <Content Include="Template\vendor\jquery\jquery.slim.min.map" />
+    <Content Include="Views\Household\CreateHousehold.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Household\ViewHousehold.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
