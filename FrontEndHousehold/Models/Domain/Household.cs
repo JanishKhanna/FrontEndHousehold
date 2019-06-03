@@ -7,6 +7,7 @@ namespace FrontEndHousehold.Models.Domain
 {
     public class Household
     {
+        public int HouseholdId { get; set; }
         public string Name { get; set; }        
         public string Description { get; set; }
         public DateTime DateCreated { get; set; }

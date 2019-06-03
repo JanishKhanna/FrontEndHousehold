@@ -18,7 +18,7 @@
 
 <body id="page-top">
     <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
-        <a class="navbar-brand mr-1" href="index.html">Start Bootstrap</a>
+        <a class="navbar-brand mr-1" style="color:whitesmoke">Household Budgeter</a>
         <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
             <i class="fas fa-bars"></i>
         </button>
@@ -41,8 +41,8 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" style="padding: 10px " aria-labelledby="userDropdown">
                     @*@Html.Partial("_LoginPartial")*@
-                    <a class="dropdown-item" href="@Url.Action("Index", "Manage")">Settings</a>
-                </div>
+                    @*<a class="dropdown-item" href="@Url.Action("Index", "Manage")">Settings</a>
+                </div>*@
             </li>
         </ul>
     </nav>
@@ -81,31 +81,6 @@
                     <span>Create Households</span>
                 </a>
             </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("InviteUsers", "Household")">
-                    @*<i class="fas fa-fw fa-chart-area"></i>*@
-                    <span>Invite Users</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <details>
-                    <summary style="color:rgba(255, 255, 255, 0.5);"> Join/Leave</summary>
-
-
-                    <a class="nav-link" href="@Url.Action("JoinHousehold", "Household")">
-                        <span>Join</span>
-                    </a>
-
-                    <a class="nav-link" href="@Url.Action("LeaveHousehold", "Household")">
-                        <span>Leave</span>
-                    </a>
-                </details>
-                @*<i class="fas fa-fw fa-table"></i>*@
-
-            </li>
-            }
         </ul>
         <div class="container body-content">
             @RenderBody()

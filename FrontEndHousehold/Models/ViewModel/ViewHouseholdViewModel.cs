@@ -8,11 +8,13 @@ namespace FrontEndHousehold.Models.ViewModel
 {
     public class ViewHouseholdViewModel
     {
+        public int HouseholdId { get; set; }
         public string Name { get; set; }        
         public string Description { get; set; }
         public DateTime DateCreated { get; set; }
 
-        public DateTime? DateUpdated { get; set; }
+        public DateTime? DateUpdated { get; set; }      
+
 
         public ViewHouseholdViewModel()
         {
@@ -21,6 +23,7 @@ namespace FrontEndHousehold.Models.ViewModel
 
         public ViewHouseholdViewModel(Household household)
         {
+            HouseholdId = household.HouseholdId;
             Name = household.Name;
             Description = household.Description;
             DateCreated = household.DateCreated;

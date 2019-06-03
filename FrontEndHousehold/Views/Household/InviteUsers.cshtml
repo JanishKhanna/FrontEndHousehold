@@ -1,0 +1,21 @@
+﻿@model FrontEndHousehold.Models.ViewModel.UserViewModel
+
+@{
+    ViewBag.Title = "InviteUsers";
+}
+
+<h2>Invite Users</h2>
+
+<form action="@Url.Action("InviteUsers", "Household")" method="post" enctype="multipart/form-data" style="margin-top:50px">
+    @Html.ValidationSummary(false)
+
+    <div class="form-group">
+        @Html.LabelFor(p => p.Email, "Email")
+        @Html.TextBoxFor(p => p.Email, new { @class = "form-control", type = "email", placeholder = "Email" })
+    </div>
+    <div class="form-group">        
+        <div class="">
+            <button type="submit" class="btn btn-default">Invite</button>
+        </div>
+    </div>
+</form>

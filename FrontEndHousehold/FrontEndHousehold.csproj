@@ -129,9 +129,11 @@
     <Compile Include="Models\Domain\Household.cs" />
     <Compile Include="Models\Domain\LoginData.cs" />
     <Compile Include="Models\ViewModel\CreateHouseholdViewModel.cs" />
+    <Compile Include="Models\ViewModel\EditHouseholdViewModel.cs" />
     <Compile Include="Models\ViewModel\ErrorViewModel.cs" />
     <Compile Include="Models\ViewModel\LoginViewModel.cs" />
     <Compile Include="Models\ViewModel\RegisterViewModel.cs" />
+    <Compile Include="Models\ViewModel\UserViewModel.cs" />
     <Compile Include="Models\ViewModel\ViewHouseholdViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -1923,6 +1925,10 @@
     <Content Include="Views\Account\Register.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Household\ViewHousehold.cshtml" />
+    <Content Include="Views\Household\EditHousehold.cshtml" />
+    <Content Include="Views\Household\Index.cshtml" />
+    <Content Include="Views\Household\ViewUsers.cshtml" />
+    <Content Include="Views\Household\InviteUsers.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
