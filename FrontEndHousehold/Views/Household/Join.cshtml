@@ -1,0 +1,41 @@
+﻿@model List<FrontEndHousehold.Models.ViewModel.InviteViewModel>
+
+@{
+    ViewBag.Title = "Join";
+}
+
+<h2>Join Households</h2>
+
+@Html.ValidationSummary(false)
+
+@if (Model == null || !Model.Any())
+{
+    <div>There are no pending invites</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Household</th>
+                <th>Owner</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.OwnerName</td>
+                    <td>
+                        <form action="@Url.Action("Join", "Household", new { id = item.HouseholdId })" method="post">
+                            <button type="submit">Join</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

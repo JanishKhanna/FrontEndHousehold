@@ -128,12 +128,15 @@
     </Compile>
     <Compile Include="Models\Domain\Household.cs" />
     <Compile Include="Models\Domain\LoginData.cs" />
+    <Compile Include="Models\Domain\LoginError.cs" />
+    <Compile Include="Models\ViewModel\ChangePasswordViewModel.cs" />
     <Compile Include="Models\ViewModel\CreateHouseholdViewModel.cs" />
     <Compile Include="Models\ViewModel\EditHouseholdViewModel.cs" />
     <Compile Include="Models\ViewModel\ErrorViewModel.cs" />
+    <Compile Include="Models\ViewModel\InviteViewModel.cs" />
     <Compile Include="Models\ViewModel\LoginViewModel.cs" />
     <Compile Include="Models\ViewModel\RegisterViewModel.cs" />
-    <Compile Include="Models\ViewModel\UserViewModel.cs" />
+    <Compile Include="Models\ViewModel\InviteUserViewModel.cs" />
     <Compile Include="Models\ViewModel\ViewHouseholdViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -1929,6 +1932,7 @@
     <Content Include="Views\Household\Index.cshtml" />
     <Content Include="Views\Household\ViewUsers.cshtml" />
     <Content Include="Views\Household\InviteUsers.cshtml" />
+    <Content Include="Views\Household\Join.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

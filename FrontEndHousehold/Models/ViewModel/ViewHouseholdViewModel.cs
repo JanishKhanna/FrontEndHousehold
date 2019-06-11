@@ -11,6 +11,8 @@ namespace FrontEndHousehold.Models.ViewModel
         public int HouseholdId { get; set; }
         public string Name { get; set; }        
         public string Description { get; set; }
+        public int NumberOfUsers { get; set; }
+        public bool IsOwner { get; set; }
         public DateTime DateCreated { get; set; }
 
         public DateTime? DateUpdated { get; set; }      
@@ -28,6 +30,8 @@ namespace FrontEndHousehold.Models.ViewModel
             Description = household.Description;
             DateCreated = household.DateCreated;
             DateUpdated = household.DateUpdated;
+            IsOwner = household.IsOwner;
+            NumberOfUsers = household.NumberOfUsers;
         }
     }
 }

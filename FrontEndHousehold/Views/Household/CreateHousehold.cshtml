@@ -7,8 +7,8 @@
 <h2 style="margin-top:15px">Create Household</h2>
 
 <form action="@Url.Action("CreateHousehold", "Household")" method="post" enctype="multipart/form-data" style="margin-top:50px">
-    @Html.ValidationSummary(false)
 
+    @Html.ValidationSummary(false)
     <div class="form-group">
         @Html.LabelFor(p => p.Name, "Name")
         @Html.TextBoxFor(p => p.Name, new { @class = "form-control", placeholder = "Name" })

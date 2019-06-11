@@ -17,7 +17,7 @@ namespace FrontEndHousehold.Controllers
         {
             return View();
         }
-        
+
         [HttpGet]
         public ActionResult ViewHousehold()
         {
@@ -25,7 +25,7 @@ namespace FrontEndHousehold.Controllers
 
             if (cookie == null)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
             var token = cookie.Value;
@@ -36,41 +36,59 @@ namespace FrontEndHousehold.Controllers
             httpClient.DefaultRequestHeaders.Add("Authorization",
                 $"Bearer {token}");
 
-            var data = httpClient.GetStringAsync(url).Result;
+            var response = httpClient.GetAsync(url).Result;
 
-            var result = JsonConvert.DeserializeObject<List<Household>>(data);
-
-            var viewModel = result.Select(p => new ViewHouseholdViewModel()
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                HouseholdId = p.HouseholdId,
-                Name = p.Name,
-                Description = p.Description,
-                DateCreated = p.DateCreated,
-                DateUpdated = p.DateUpdated
-            }).ToList();
+                var data = response.Content.ReadAsStringAsync().Result;
+                var households = JsonConvert.DeserializeObject<List<Household>>(data);
 
-            return View(viewModel);
+                var viewModel = households.Select(p => new ViewHouseholdViewModel()
+                {
+                    HouseholdId = p.HouseholdId,
+                    Name = p.Name,
+                    Description = p.Description,
+                    DateCreated = p.DateCreated,
+                    DateUpdated = p.DateUpdated,
+                    NumberOfUsers = p.NumberOfUsers,
+                    IsOwner = p.IsOwner,
+                }).ToList();
+
+                return View(viewModel);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View();
+            }
         }
 
         [HttpGet]
         public ActionResult CreateHousehold()
         {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
             return View();
         }
 
         [HttpPost]
         public ActionResult CreateHousehold(CreateHouseholdViewModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                ModelState.AddModelError(nameof(model), "Invalid Form Data");
-            }
-
             var cookie = Request.Cookies["HouseholdCookie"];
 
             if (cookie == null)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError(nameof(model), "Invalid Form Data");
             }
 
             var token = cookie.Value;
@@ -83,7 +101,6 @@ namespace FrontEndHousehold.Controllers
 
             var name = model.Name;
             var description = model.Description;
-            var dateCreated = DateTime.Now;
 
             var parameters = new List<KeyValuePair<string, string>>();
             parameters.Add(new KeyValuePair<string, string>("Name", name));
@@ -95,22 +112,28 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.Created)
             {
-                var data = response.Content.ReadAsStringAsync().Result;
-                var result = JsonConvert.DeserializeObject<Household>(data);
-                return View("ViewHousehold");
+                return RedirectToAction("ViewHousehold");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
                 var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
 
-                var error = result.ModelState;
+                foreach (var key in result.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
 
-                return View(error);
+                return View(model);
             }
-
-            return View(nameof(HomeController.Index), "Home");
-
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View(model);
+            }
         }
 
         [HttpGet]
@@ -121,7 +144,7 @@ namespace FrontEndHousehold.Controllers
 
             if (cookie == null)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
             var token = cookie.Value;
@@ -132,17 +155,30 @@ namespace FrontEndHousehold.Controllers
             httpClient.DefaultRequestHeaders.Add("Authorization",
                 $"Bearer {token}");
 
-            var data = httpClient.GetStringAsync(url).Result;
+            var response = httpClient.GetAsync(url).Result;
 
-            var result = JsonConvert.DeserializeObject<Household>(data);
-
-            var viewModel = new EditHouseholdViewModel()
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                Name = result.Name,
-                Description = result.Description
-            };
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<Household>(data);
 
-            return View(viewModel);
+                if (!result.IsOwner)
+                {
+                    return RedirectToAction("Index");
+                }
+
+                var viewModel = new EditHouseholdViewModel()
+                {
+                    Name = result.Name,
+                    Description = result.Description
+                };
+
+                return View(viewModel);
+            }
+            else
+            {
+                return RedirectToAction("ViewHousehold");
+            }
         }
 
         [HttpPost]
@@ -153,7 +189,12 @@ namespace FrontEndHousehold.Controllers
 
             if (cookie == null)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
             }
 
             var token = cookie.Value;
@@ -177,60 +218,79 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var data = response.Content.ReadAsStringAsync().Result;
-                var result = JsonConvert.DeserializeObject<Household>(data);
-                return View("Index");
+                return RedirectToAction("ViewHousehold");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
                 var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
 
-                var error = result.ModelState;
+                foreach (var key in result.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
 
-                return View(error);
+                return View(model);
             }
-            else if(response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return View("Household Not Found");
+                return RedirectToAction("ViewHousehold");
             }
-
-            return View(nameof(HouseholdController.Index), "Household");
-
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View(model);
+            }
         }
 
-        [HttpGet]
-        [Route("ViewUsers/{id}")]
-        public ActionResult ViewUsers(int id)
-        {
-            var cookie = Request.Cookies["HouseholdCookie"];
+        //[HttpGet]
+        //[Route("ViewUsers/{id}")]
+        //public ActionResult ViewUsers(int id)
+        //{
+        //    var cookie = Request.Cookies["HouseholdCookie"];
 
-            if (cookie == null)
-            {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
+        //    if (cookie == null)
+        //    {
+        //        return RedirectToAction(nameof(AccountController.Login), "Account");
+        //    }
 
-            var token = cookie.Value;
+        //    var token = cookie.Value;
 
-            var url = $"http://localhost:62357/api/household-management/users-joined-to-household/{id}";
+        //    var url = $"http://localhost:62357/api/household-management/by-id/{id}";
 
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("Authorization",
-                $"Bearer {token}");
+        //    var httpClient = new HttpClient();
+        //    httpClient.DefaultRequestHeaders.Add("Authorization",
+        //        $"Bearer {token}");
 
-            var data = httpClient.GetAsync(url).Result;
-            var response = data.Content.ReadAsStringAsync().Result;
+        //    var response = httpClient.GetAsync(url).Result;
 
-            var result = JsonConvert.DeserializeObject<List<UserViewModel>>(response);
+        //    if(response.StatusCode == System.Net.HttpStatusCode.OK)
+        //    {
+        //        var data = response.Content.ReadAsStringAsync().Result;
+        //        var result = JsonConvert.DeserializeObject<Household>(data);
 
-            var viewModel = result.Select(p => new UserViewModel()
-            {
-                Email = p?.Email
-            }).ToList();
+        //        if (!result.IsOwner)
+        //        {
+        //            return RedirectToAction("ViewHousehold");
+        //        }
 
-            return View(viewModel);
-        } 
-        
+        //        return View();
+        //    }
+        //    //var response = data.Content.ReadAsStringAsync().Result;
+
+        //    //var result = JsonConvert.DeserializeObject<List<InviteUserViewModel>>(response);
+
+        //    var viewModel = result.Select(p => new InviteUserViewModel()
+        //    {
+        //        Email = p?.Email
+        //    }).ToList();
+
+        //    return View(viewModel);
+        //}
+
         [HttpGet]
         [Route("InviteUsers/{id}")]
         public ActionResult InviteUsers(int id)
@@ -239,7 +299,7 @@ namespace FrontEndHousehold.Controllers
 
             if (cookie == null)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
             var token = cookie.Value;
@@ -250,22 +310,36 @@ namespace FrontEndHousehold.Controllers
             httpClient.DefaultRequestHeaders.Add("Authorization",
                 $"Bearer {token}");
 
-            var data = httpClient.GetStringAsync(url).Result;
+            var response = httpClient.GetAsync(url).Result;
 
-            var result = JsonConvert.DeserializeObject<Household>(data);            
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<Household>(data);
+
+                if (!result.IsOwner)
+                {
+                    return RedirectToAction("ViewHousehold");
+                }
+            }
 
             return View();
         }
 
         [HttpPost]
         [Route("InviteUsers/{id}")]
-        public ActionResult InviteUsers(int id, UserViewModel model)
+        public ActionResult InviteUsers(int id, InviteUserViewModel model)
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
             if (cookie == null)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
             }
 
             var token = cookie.Value;
@@ -287,36 +361,76 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var data = response.Content.ReadAsStringAsync().Result;
-                //var result = JsonConvert.DeserializeObject<UserViewModel>(data);
-                return View("Index");
+                return RedirectToAction("ViewHousehold");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
                 var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
 
-                var error = result.ModelState;
+                foreach (var key in result.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
 
-                return View(error);
+                return View(model);
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return View("User Not Found");
+                return RedirectToAction("Index");
             }
-
-            return View(nameof(HouseholdController.Index), "Household");
+            else
+            {
+                ModelState.AddModelError("", "Sorry, An unexpected error has occured. Please try again later");
+                return View(model);
+            }
         }
 
-        [HttpPost]
-        [Route("Join/{id}")]
-        public ActionResult Join(int id, UserViewModel model)
+        [HttpGet]
+        public ActionResult Join()
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
             if (cookie == null)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            var token = cookie.Value;
+
+            var url = $"http://localhost:62357/api/household-management/get-invites";
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization",
+                $"Bearer {token}");
+
+            var response = httpClient.GetAsync(url).Result;
+
+            if(response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<List<InviteViewModel>>(data);
+
+                return View(result);
+            }
+            else
+            {
+                return RedirectToAction("ViewHousehold");
+            }
+        }
+
+        [HttpPost]
+        [Route("Join/{id}")]
+        public ActionResult Join(int id)
+        {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
             var token = cookie.Value;
@@ -325,37 +439,39 @@ namespace FrontEndHousehold.Controllers
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization",
-                $"Bearer {token}");
+                $"Bearer {token}");            
 
-            var email = model.Email;
-
-            var parameters = new List<KeyValuePair<string, string>>();
-            parameters.Add(new KeyValuePair<string, string>("Email", email));
-
-            var encodedParameters = new FormUrlEncodedContent(parameters);
-
-            var response = httpClient.PostAsync(url, encodedParameters).Result;
+            var response = httpClient.PostAsync(url, null).Result;
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var data = response.Content.ReadAsStringAsync().Result;
-                return View("Index");
+                return RedirectToAction("ViewHousehold");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
                 var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
 
-                var error = result.ModelState;
+                foreach (var key in result.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
 
-                return View(error);
+                return View();
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return View("User Not Found");
+                TempData["Message"] = "It looks like this household was deleted";
+                return RedirectToAction("ViewHousehold");
             }
-
-            return View(nameof(HouseholdController.Index), "Household");
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View();
+            }
         }
 
         [HttpPost]
@@ -366,7 +482,7 @@ namespace FrontEndHousehold.Controllers
 
             if (cookie == null)
             {
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
             var token = cookie.Value;
@@ -381,24 +497,33 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var data = response.Content.ReadAsStringAsync().Result;
-                return View("Index");
+                return RedirectToAction("ViewHousehold");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
                 var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
 
-                var error = result.ModelState;
+                foreach (var key in result.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
 
-                return View(error);
+                return View();
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return View("User Not Found");
+                TempData["Message"] = "It looks like this household was deleted";
+                return RedirectToAction("ViewHousehold");
             }
-
-            return View(nameof(HouseholdController.Index), "Household");
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View();
+            }
         }
     }
 }

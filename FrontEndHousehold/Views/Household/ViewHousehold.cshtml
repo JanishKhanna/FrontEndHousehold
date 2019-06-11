@@ -1,6 +1,8 @@
 ﻿@model List<FrontEndHousehold.Models.ViewModel.ViewHouseholdViewModel>
 
 @{
+    /**/
+
     ViewBag.Title = "ViewHousehold";
 }
 
@@ -20,67 +22,70 @@
     </script>
 }
 
-<h2>ViewHousehold</h2>
+<h2>View Households</h2>
 
-@Html.ActionLink("Create Household", "CreatHousehold")
+@Html.ValidationSummary(false)
 
-@*@if (!Model.Any())
-    {
-        <div style="margin-top:15px;">
-            <p><strong>No Household Available </strong></p>
-        </div>
-    }
-    else
-    {*@
-<table id="sample-datatables" class="table table-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Date Created</th>
-            <th>Date Updated</th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var house in Model)
-        {
+@Html.ActionLink("Create Household", "CreateHousehold")
+
+@if (Model == null || !Model.Any())
+{
+    <div style="margin-top:15px;">
+        <p><strong>No Households Available </strong></p>
+    </div>
+}
+else
+{
+    <table id="sample-datatables" class="table table-striped">
+        <thead>
             <tr>
-                <td>@house.Name</td>
-                <td>@house.Description</td>
-                <td>@house.DateCreated</td>
-                <td>@house.DateUpdated</td>
-                <td>
-                    <a href="@Url.Action("EditHousehold", "Household", new { id = house.HouseholdId})">
-                        <i title="Edit Household" class="fas fa-edit"></i>
-                    </a>
-                </td>
-                <td>
-                    <a href="@Url.Action("ViewUsers", "Household", new { id = house.HouseholdId })">
-                        <i title="View Members" class="fas fa-user-friends"></i>
-                    </a>
-                </td>
-                <td>
-                    <a href="@Url.Action("InviteUsers", "Household", new { id = house.HouseholdId})">
-                        <i title="Invite Users" class="fas fa-user-tag"></i>
-                    </a>
-                </td>
-                <td>
-                    <form method="post" action="@Url.Action("LeaveHousehold", "Household", new { id = house.HouseholdId })">
-                        <button class="btn-delete fas fa-remove">Leave</button>
-                    </form>
-                </td>
-                <td>
-                    <form method="post" action="@Url.Action("Join", "Household", new { id = house.HouseholdId })">
-                        <button class="btn-delete">Join</button>
-                    </form>
-                </td>
+                <th>Name</th>
+                <th>Number Of Users</th>
+                <th>Date Created</th>
+                <th>Date Updated</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach (var house in Model)
+            {
+                <tr>
+                    <td>@house.Name</td>
+                    <td>@house.NumberOfUsers</td>
+                    <td>@house.DateCreated</td>
+                    <td>@house.DateUpdated</td>
+                    <td>
+                        @if (house.IsOwner)
+                        {
+                            <a href="@Url.Action("EditHousehold", "Household", new { id = house.HouseholdId})">
+                                <i title="Edit Household" class="fas fa-edit"></i>
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        <a href="@Url.Action("Join", "Household"@*, new { id = house.HouseholdId }*@)">
+                            <i title="Join Household" class="fas fa-user-friends"></i>
+                        </a>
+                    </td>
+                    <td>
+                        @if (house.IsOwner)
+                        {
+                            <a href="@Url.Action("InviteUsers", "Household", new { id = house.HouseholdId})">
+                                <i title="Invite Users" class="fas fa-user-tag"></i>
+                            </a>
+                        }
 
-        }
-    </tbody>
-</table>
+                    </td>
+                    <td>
+                        <form method="post" action="@Url.Action("LeaveHousehold", "Household", new { id = house.HouseholdId })">
+                            <button class="btn-delete fas fa-remove">Leave</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

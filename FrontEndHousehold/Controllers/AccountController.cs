@@ -21,6 +21,11 @@ namespace FrontEndHousehold.Controllers
         [HttpPost]
         public ActionResult Register(RegisterViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             var email = model.Email;
             var password = model.Password;
             var confirmPassword = model.ConfirmPassword;
@@ -44,21 +49,30 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
+                TempData["Message"] = "Your account has been created successfully!";
                 return RedirectToAction("Login");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
-                var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
+                var errors = JsonConvert.DeserializeObject<ErrorViewModel>(data);
 
-                return View();
+                foreach (var key in errors.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
+
+                return View(model);
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
             {
-                return View("Error");
+                return View("Sorry. An unexpected error has occured. Please try again later.");
             }
 
-            return View();
+            return View("Error");
         }
 
         [HttpGet]
@@ -70,6 +84,11 @@ namespace FrontEndHousehold.Controllers
         [HttpPost]
         public ActionResult Login(LoginViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             var url = "http://localhost:62357/token";
 
             var userName = model.Email;
@@ -87,16 +106,113 @@ namespace FrontEndHousehold.Controllers
 
             var response = httpClient.PostAsync(url, encodedValues).Result;
 
-            var data = response.Content.ReadAsStringAsync().Result;
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
 
-            var result = JsonConvert.DeserializeObject<LoginData>(data);
+                var result = JsonConvert.DeserializeObject<LoginData>(data);
 
-            var cookie = new HttpCookie("HouseholdCookie",
-                result.AccessToken);
+                var cookie = new HttpCookie("HouseholdCookie",
+                    result.AccessToken);
 
-            Response.Cookies.Add(cookie);
+                Response.Cookies.Add(cookie);
 
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+
+                var error = JsonConvert.DeserializeObject<LoginError>(data);
+
+                ModelState.AddModelError("", error.ErrorDescription);
+
+                return View(model);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult ChangePassword()
+        {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult ChangePassword(ChangePasswordViewModel model)
+        {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var token = cookie.Value;
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var oldPassword = model.OldPassword;
+            var newPassword = model.NewPassword;
+            var confirmPassword = model.ConfirmPassword;
+
+            var url = "http://localhost:62357/api/Account/ChangePassword";
+
+            var httpClient = new HttpClient();
+
+            var parameters = new List<KeyValuePair<string, string>>();
+
+            parameters
+                .Add(new KeyValuePair<string, string>("OldPassword", oldPassword));
+            parameters
+                .Add(new KeyValuePair<string, string>("NewPassword", newPassword));
+            parameters
+                .Add(new KeyValuePair<string, string>("ConfirmPassword", confirmPassword));
+
+            var encodedParameters = new FormUrlEncodedContent(parameters);
+
+            var response = httpClient.PostAsync(url, encodedParameters).Result;
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                ViewBag.Message = "Password has been changed succesfully";
+                return View();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+
+                var errors = JsonConvert.DeserializeObject<ErrorViewModel>(data);
+
+                foreach (var key in errors.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
+
+                return View(model);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sorry, An unexpected error has occured. Please try again later");
+                return View(model);
+            }
         }
     }
 }
