@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace FrontEndHousehold.Models.ViewModel
+namespace FrontEndHousehold.Models.ViewModel.Households
 {
     public class InviteViewModel
     {

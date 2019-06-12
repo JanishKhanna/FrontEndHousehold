@@ -1,0 +1,78 @@
+﻿@model List<ViewCategoryViewModel>
+
+@{
+    ViewBag.Title = "ViewCategories";
+}
+
+@section css {
+    <link rel="stylesheet"
+          href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+}
+
+@section Scripts {
+    <script type="text/javascript"
+            src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sample-datatables').DataTable();
+        });
+    </script>
+}
+
+<h2>ViewCategories</h2>
+
+@Html.ValidationSummary(false)
+
+@Html.ActionLink("Create Category", "CreateCategory")
+
+@if (Model == null || !Model.Any())
+{
+    <div style="margin-top:15px;">
+        <p><strong>No Categories Available </strong></p>
+    </div>
+}
+else
+{
+    <table id="sample-datatables" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Date Created</th>
+                <th>Date Updated</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model)
+            {
+                <tr>
+                    <td>@category.CategoryId</td>
+                    <td>@category.Name</td>
+                    <td>@category.Description</td>
+                    <td>@category.DateCreated</td>
+                    <td>@category.DateUpdated</td>
+                    <td>
+                        @if (category.IsOwner)
+                        {
+                            <a href="@Url.Action("EditCategory", "Category", new { id = category.CategoryId })">
+                                <i title="Edit Category" class="fas fa-edit"></i>
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        @if (category.IsOwner)
+                        {
+                            <form method="post" action="@Url.Action("DeleteCategory", "Category", new { id = category.CategoryId })">
+                                <button class="btn-delete"><i title="Delete" class="fas fa-cut"></i></button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

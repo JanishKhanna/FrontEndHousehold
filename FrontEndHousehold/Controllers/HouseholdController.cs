@@ -1,5 +1,6 @@
 ﻿using FrontEndHousehold.Models.Domain;
 using FrontEndHousehold.Models.ViewModel;
+using FrontEndHousehold.Models.ViewModel.Households;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -409,7 +410,7 @@ namespace FrontEndHousehold.Controllers
 
             var response = httpClient.GetAsync(url).Result;
 
-            if(response.StatusCode == System.Net.HttpStatusCode.OK)
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
                 var result = JsonConvert.DeserializeObject<List<InviteViewModel>>(data);
@@ -439,7 +440,7 @@ namespace FrontEndHousehold.Controllers
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization",
-                $"Bearer {token}");            
+                $"Bearer {token}");
 
             var response = httpClient.PostAsync(url, null).Result;
 

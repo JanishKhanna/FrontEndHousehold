@@ -1,4 +1,4 @@
-﻿@model List<FrontEndHousehold.Models.ViewModel.ViewHouseholdViewModel>
+﻿@model List<ViewHouseholdViewModel>
 
 @{
     /**/
@@ -42,7 +42,8 @@ else
                 <th>Name</th>
                 <th>Number Of Users</th>
                 <th>Date Created</th>
-                <th>Date Updated</th>
+                @*<th>Date Updated</th>*@
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
@@ -56,7 +57,7 @@ else
                     <td>@house.Name</td>
                     <td>@house.NumberOfUsers</td>
                     <td>@house.DateCreated</td>
-                    <td>@house.DateUpdated</td>
+                    @*<td>@house.DateUpdated</td>*@
                     <td>
                         @if (house.IsOwner)
                         {
@@ -66,7 +67,7 @@ else
                         }
                     </td>
                     <td>
-                        <a href="@Url.Action("Join", "Household"@*, new { id = house.HouseholdId }*@)">
+                        <a href="@Url.Action("Join", "Household")">
                             <i title="Join Household" class="fas fa-user-friends"></i>
                         </a>
                     </td>
@@ -81,8 +82,13 @@ else
                     </td>
                     <td>
                         <form method="post" action="@Url.Action("LeaveHousehold", "Household", new { id = house.HouseholdId })">
-                            <button class="btn-delete fas fa-remove">Leave</button>
+                            <button class="btn-delete"><i title="Leave" class="fas fa-cut"></i></button>
                         </form>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("ViewCategories", "Category", new { id = house.HouseholdId })">
+                            <i title="Categories" class="fas fa-box-open"></i>
+                        </a>
                     </td>
                 </tr>
             }

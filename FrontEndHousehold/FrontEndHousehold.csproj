@@ -121,23 +121,26 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\CategoryController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\HouseholdController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Domain\Category.cs" />
     <Compile Include="Models\Domain\Household.cs" />
     <Compile Include="Models\Domain\LoginData.cs" />
     <Compile Include="Models\Domain\LoginError.cs" />
-    <Compile Include="Models\ViewModel\ChangePasswordViewModel.cs" />
-    <Compile Include="Models\ViewModel\CreateHouseholdViewModel.cs" />
-    <Compile Include="Models\ViewModel\EditHouseholdViewModel.cs" />
+    <Compile Include="Models\ViewModel\Account\ChangePasswordViewModel.cs" />
+    <Compile Include="Models\ViewModel\Account\LoginViewModel.cs" />
+    <Compile Include="Models\ViewModel\Account\RegisterViewModel.cs" />
+    <Compile Include="Models\ViewModel\Categories\ViewCategoryViewModel.cs" />
     <Compile Include="Models\ViewModel\ErrorViewModel.cs" />
-    <Compile Include="Models\ViewModel\InviteViewModel.cs" />
-    <Compile Include="Models\ViewModel\LoginViewModel.cs" />
-    <Compile Include="Models\ViewModel\RegisterViewModel.cs" />
-    <Compile Include="Models\ViewModel\InviteUserViewModel.cs" />
-    <Compile Include="Models\ViewModel\ViewHouseholdViewModel.cs" />
+    <Compile Include="Models\ViewModel\Households\CreateHouseholdViewModel.cs" />
+    <Compile Include="Models\ViewModel\Households\EditHouseholdViewModel.cs" />
+    <Compile Include="Models\ViewModel\Households\InviteUserViewModel.cs" />
+    <Compile Include="Models\ViewModel\Households\InviteViewModel.cs" />
+    <Compile Include="Models\ViewModel\Households\ViewHouseholdViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1933,6 +1936,7 @@
     <Content Include="Views\Household\ViewUsers.cshtml" />
     <Content Include="Views\Household\InviteUsers.cshtml" />
     <Content Include="Views\Household\Join.cshtml" />
+    <Content Include="Views\Category\ViewCategories.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

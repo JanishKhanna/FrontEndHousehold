@@ -1,10 +1,11 @@
 ﻿using FrontEndHousehold.Models.Domain;
+using FrontEndHousehold.Models.ViewModel.Categories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace FrontEndHousehold.Models.ViewModel
+namespace FrontEndHousehold.Models.ViewModel.Households
 {
     public class ViewHouseholdViewModel
     {
@@ -14,9 +15,7 @@ namespace FrontEndHousehold.Models.ViewModel
         public int NumberOfUsers { get; set; }
         public bool IsOwner { get; set; }
         public DateTime DateCreated { get; set; }
-
-        public DateTime? DateUpdated { get; set; }      
-
+        public DateTime? DateUpdated { get; set; }
 
         public ViewHouseholdViewModel()
         {
