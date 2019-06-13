@@ -86,9 +86,12 @@ else
                         </form>
                     </td>
                     <td>
-                        <a href="@Url.Action("ViewCategories", "Category", new { id = house.HouseholdId })">
-                            <i title="Categories" class="fas fa-box-open"></i>
-                        </a>
+                        @if (house.IsOwner)
+                        {
+                            <a href="@Url.Action("ViewCategories", "Category", new { id = house.HouseholdId })">
+                                <i title="Categories" class="fas fa-box-open"></i>
+                            </a>
+                        }
                     </td>
                 </tr>
             }

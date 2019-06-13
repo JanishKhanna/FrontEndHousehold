@@ -1,12 +1,12 @@
-﻿@model EditHouseholdViewModel
+﻿@model CreateEditCategoryViewModel
 
 @{
-    ViewBag.Title = "EditHousehold";
+    ViewBag.Title = "EditCategory";
 }
 
-<h2 style="margin-top:15px">Edit Household</h2>
+<h2 style="margin-top:15px">Edit Category</h2>
 
-<form action="@Url.Action("EditHousehold", "Household")" method="post" enctype="multipart/form-data" style="margin-top:50px">
+<form action="@Url.Action("EditCategory", "Category")" method="post" enctype="multipart/form-data" style="margin-top:50px">
     @Html.ValidationSummary(false)
 
     <div class="form-group">
@@ -22,3 +22,4 @@
         </div>
     </div>
 </form>
+

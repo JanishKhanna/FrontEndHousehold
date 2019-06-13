@@ -1,4 +1,4 @@
-﻿@model List<FrontEndHousehold.Models.ViewModel.UserViewModel>
+﻿@model List<ViewHouseholdViewModel>
 
 @{
     ViewBag.Title = "ViewUsers";
@@ -41,7 +41,7 @@ else
             @foreach (var user in Model)
             {
                 <tr>
-                    <td>@user.Email</td> 
+                    <td>@user.Name></td> 
                     <td>
                         <form method="delete" action="@Url.Action("LeaveHousehold", "Household", new { email = user.Email, id = user.HouseholdId })">
                             <button class="btn-delete fas fa-remove">Leave</button>

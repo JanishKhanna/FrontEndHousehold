@@ -24,7 +24,8 @@
 
 @Html.ValidationSummary(false)
 
-@Html.ActionLink("Create Category", "CreateCategory")
+@Html.ActionLink("Create Category", "CreateCategory", new { id = ViewBag.id})
+
 
 @if (Model == null || !Model.Any())
 {

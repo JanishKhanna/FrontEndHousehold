@@ -1,4 +1,5 @@
 ﻿using FrontEndHousehold.Models.Domain;
+using FrontEndHousehold.Models.ViewModel;
 using FrontEndHousehold.Models.ViewModel.Categories;
 using Newtonsoft.Json;
 using System;
@@ -37,15 +38,242 @@ namespace FrontEndHousehold.Controllers
                 $"Bearer {token}");
 
             var response = httpClient.GetAsync(url).Result;
+            var data = response.Content.ReadAsStringAsync().Result;
 
-            if(response.StatusCode == System.Net.HttpStatusCode.OK)
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var data = response.Content.ReadAsStringAsync().Result;
                 var categories = JsonConvert.DeserializeObject<List<Category>>(data);
-
+                ViewBag.id = id;
                 var viewModel = categories.Select(p => new ViewCategoryViewModel(p)).ToList();
 
                 return View(viewModel);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View();
+            }
+        }
+
+        [HttpGet]
+        public ActionResult CreateCategory(int id)
+        {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            ViewBag.id = id;
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult CreateCategory(int id, CreateEditCategoryViewModel model)
+        {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError(nameof(model), "Invalid Form Data");
+            }
+
+            var token = cookie.Value;
+
+            var url = $"http://localhost:62357/api/category-management/create-category/{id}";
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization",
+                $"Bearer {token}");
+
+            var parameters = new List<KeyValuePair<string, string>>();
+            parameters.Add(new KeyValuePair<string, string>("Name", model.Name));
+            parameters.Add(new KeyValuePair<string, string>("Description", model.Description));
+
+            var encodedParameters = new FormUrlEncodedContent(parameters);
+
+            var response = httpClient.PostAsync(url, encodedParameters).Result;
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Created)
+            {
+                return RedirectToAction("ViewCategories", new { id = id });
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
+
+                foreach (var key in result.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
+
+                return View(model);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult EditCategory(int id)
+        {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            var token = cookie.Value;
+
+            var url = $"http://localhost:62357/api/category-management/get-by-id/{id}";
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization",
+                $"Bearer {token}");
+
+            var response = httpClient.GetAsync(url).Result;
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<Category>(data);
+
+                if (!result.IsOwner)
+                {
+                    return RedirectToAction(nameof(HouseholdController.Index), "Household");
+                }
+
+                var viewModel = new CreateEditCategoryViewModel()
+                {
+                    Name = result.Name,
+                    Description = result.Description
+                };
+
+                return View(viewModel);
+            }
+            else
+            {
+                return RedirectToAction("ViewCategories");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult EditCategory(int id, CreateEditCategoryViewModel model)
+        {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var token = cookie.Value;
+
+            var url = $"http://localhost:62357/api/category-management/edit-category/{id}";
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization",
+                $"Bearer {token}");
+
+            var parameters = new List<KeyValuePair<string, string>>();
+            parameters.Add(new KeyValuePair<string, string>("Name", model.Name));
+            parameters.Add(new KeyValuePair<string, string>("Description", model.Description));
+
+            var encodedParameters = new FormUrlEncodedContent(parameters);
+
+            var response = httpClient.PutAsync(url, encodedParameters).Result;
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return RedirectToAction("ViewCategories", new { id = id });
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
+
+                foreach (var key in result.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
+
+                return View(model);
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return RedirectToAction("ViewCategories");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult DeleteCategory(int id)
+        {
+            var cookie = Request.Cookies["HouseholdCookie"];
+
+            if (cookie == null)
+            {
+                return RedirectToAction(nameof(AccountController.Login), "Account");
+            }
+
+            var token = cookie.Value;
+
+            var url = $"http://localhost:62357/api/category-management/delete-category/{id}";
+
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization",
+                $"Bearer {token}");
+
+            var response = httpClient.DeleteAsync(url).Result;
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return RedirectToAction("ViewCategories", new { id = id});
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
+
+                foreach (var key in result.ModelState)
+                {
+                    foreach (var error in key.Value)
+                    {
+                        ModelState.AddModelError(key.Key, error);
+                    }
+                }
+
+                return View();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                TempData["Message"] = "It looks like this household was deleted";
+                return RedirectToAction("ViewCategories");
             }
             else
             {

@@ -134,6 +134,7 @@
     <Compile Include="Models\ViewModel\Account\ChangePasswordViewModel.cs" />
     <Compile Include="Models\ViewModel\Account\LoginViewModel.cs" />
     <Compile Include="Models\ViewModel\Account\RegisterViewModel.cs" />
+    <Compile Include="Models\ViewModel\Categories\CreateEditCategoryViewModel.cs" />
     <Compile Include="Models\ViewModel\Categories\ViewCategoryViewModel.cs" />
     <Compile Include="Models\ViewModel\ErrorViewModel.cs" />
     <Compile Include="Models\ViewModel\Households\CreateHouseholdViewModel.cs" />
@@ -1937,6 +1938,8 @@
     <Content Include="Views\Household\InviteUsers.cshtml" />
     <Content Include="Views\Household\Join.cshtml" />
     <Content Include="Views\Category\ViewCategories.cshtml" />
+    <Content Include="Views\Category\CreateCategory.cshtml" />
+    <Content Include="Views\Category\EditCategory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
