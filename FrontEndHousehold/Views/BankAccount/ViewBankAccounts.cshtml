@@ -1,0 +1,81 @@
+﻿@model List<ViewBankAccountViewModel>
+
+@{
+    ViewBag.Title = "ViewBankAccounts";
+}
+
+@section css {
+    <link rel="stylesheet"
+          href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+}
+
+@section Scripts {
+    <script type="text/javascript"
+            src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sample-datatables').DataTable();
+        });
+    </script>
+}
+
+<h2>View Bank Accounts</h2>
+
+@Html.ValidationSummary(false)
+
+@Html.ActionLink("Create BankAccount", "CreateAccount", new { id = ViewBag.id })
+
+
+@if (Model == null || !Model.Any())
+{
+    <div style="margin-top:15px;">
+        <p><strong>No Bank Accounts Available </strong></p>
+    </div>
+}
+else
+{
+    <table id="sample-datatables" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Balance</th>
+                <th>Date Created</th>
+                <th>Date Updated</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var account in Model)
+            {
+                <tr>
+                    <td>@account.AccountId</td>
+                    <td>@account.Name</td>
+                    <td>@account.Description</td>
+                    <td>@account.Balance</td>
+                    <td>@account.DateCreated</td>
+                    <td>@account.DateUpdated</td>
+                    <td>
+                        @if (account.IsOwner)
+                        {
+                            <a href="@Url.Action("EditAccount", "BankAccount", new { id = account.AccountId })">
+                                <i title="Edit Bank Account" class="fas fa-edit"></i>
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        @if (account.IsOwner)
+                        {
+                            <form method="post" action="@Url.Action("DeleteAccount", "BankAccount", new { id = account.AccountId })">
+                                <button class="btn-delete"><i title="Delete" class="fas fa-cut"></i></button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

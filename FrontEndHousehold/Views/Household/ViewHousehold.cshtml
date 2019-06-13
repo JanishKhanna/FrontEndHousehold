@@ -48,6 +48,7 @@ else
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -90,6 +91,14 @@ else
                         {
                             <a href="@Url.Action("ViewCategories", "Category", new { id = house.HouseholdId })">
                                 <i title="Categories" class="fas fa-box-open"></i>
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        @if (house.IsOwner)
+                        {
+                            <a href="@Url.Action("ViewBankAccounts", "BankAccount", new { id = house.HouseholdId })">
+                                <i title="Bank Accounts" class="fas fa-piggy-bank"></i>
                             </a>
                         }
                     </td>
