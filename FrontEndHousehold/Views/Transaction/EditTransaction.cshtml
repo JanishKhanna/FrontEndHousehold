@@ -1,0 +1,36 @@
+﻿@model EditTransactionViewModel
+
+@{
+    ViewBag.Title = "EditTransaction";
+}
+
+<h2 style="margin-top:15px">Edit Transaction</h2>
+
+<form action="@Url.Action("EditTransaction", "Transaction")" method="post" enctype="multipart/form-data" style="margin-top:50px">
+
+    @Html.ValidationSummary(false)
+    <div class="form-group">
+        @Html.LabelFor(p => p.Title, "Title")
+        @Html.TextBoxFor(p => p.Title, new { @class = "form-control", placeholder = "Title" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(p => p.Description, "Description")
+        @Html.TextAreaFor(p => p.Description, new { @class = "form-control", placeholder = "Description", rows = 5, columns = 5 })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(p => p.DateOfTransaction, "DateOfTransaction")
+        <input name="@nameof(Model.DateOfTransaction)" type="date" class="form-control" value="@(Model.DateOfTransaction == default(DateTime)? DateTime.Now : Model.DateOfTransaction)" />
+    </div>
+    @*<div class="form-group">
+        @Html.LabelFor(p => p.CategoryId, "Category")
+        @Html.DropDownListFor(p => p.CategoryId, Model.Categories)
+    </div>*@
+    <div class="form-group">
+        @Html.LabelFor(p => p.Amount, "Amount")
+        @Html.TextBoxFor(p => p.Amount, new { @class = "form-control", placeholder = "Amount", rows = 5, columns = 5 })
+
+        <div class="">
+            <button type="submit" class="btn btn-default">Create</button>
+        </div>
+    </div>
+</form>

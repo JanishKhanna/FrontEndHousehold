@@ -1,0 +1,93 @@
+﻿@model List<ViewTransactionViewModel>
+
+@{
+    ViewBag.Title = "ViewTransactions";
+}
+
+@section css {
+    <link rel="stylesheet"
+          href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+}
+
+@section Scripts {
+    <script type="text/javascript"
+            src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js">
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sample-datatables').DataTable();
+        });
+    </script>
+}
+
+<h2>View Transactions</h2>
+
+@Html.ValidationSummary(false)
+
+@Html.ActionLink("Create Transaction", "CreateTransaction", new { id = ViewBag.id })
+
+@if (Model == null || !Model.Any())
+{
+    <div style="margin-top:15px;">
+        <p><strong>No Transactions Available </strong></p>
+    </div>
+}
+else
+{
+    <table id="sample-datatables" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>CategoryId</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>DateOfTransaction</th>
+                <th>Amount</th>
+                <th>Date Created</th>
+                <th>Date Updated</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in Model)
+            {
+                <tr>
+                    <td>@transaction.TransactionId</td>
+                    <td>@transaction.CategoryId</td>
+                    <td>@transaction.Title</td>
+                    <td>@transaction.Description</td>
+                    <td>@transaction.DateOfTransaction</td>
+                    <td>@transaction.Amount</td>
+                    <td>@transaction.DateCreated</td>
+                    <td>@transaction.DateUpdated</td>
+                    <td>
+                        @if (transaction.IsOwner)
+                        {
+                            <a href="@Url.Action("EditTransaction", "Transaction", new { id = transaction.TransactionId})">
+                                <i title="Edit Transaction" class="fas fa-edit"></i>
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        @if (transaction.IsOwner)
+                        {
+                            <form method="post" action="@Url.Action("DeleteTransaction", "Transaction", new { id = transaction.TransactionId })">
+                                <button class="btn-delete"><i title="Delete" class="fas fa-cut"></i></button>
+                            </form>
+                        }
+                    </td>
+                    <td>
+                        @if (transaction.IsOwner)
+                        {
+                            <a href="@Url.Action("Void", "Transaction", new { id = transaction.TransactionId })">
+                                <i title="Void Transaction">Void</i>
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

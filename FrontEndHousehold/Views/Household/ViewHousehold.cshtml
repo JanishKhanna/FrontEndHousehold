@@ -55,7 +55,11 @@ else
             @foreach (var house in Model)
             {
                 <tr>
-                    <td>@house.Name</td>
+                    <td>
+                        <a href="@Url.Action("EditHousehold", "Household", new { id = house.HouseholdId})">
+                            @house.Name
+                        </a>
+                    </td>
                     <td>@house.NumberOfUsers</td>
                     <td>@house.DateCreated</td>
                     @*<td>@house.DateUpdated</td>*@

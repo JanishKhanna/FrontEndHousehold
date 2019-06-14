@@ -46,6 +46,8 @@ else
                 <th>Date Updated</th>
                 <th></th>
                 <th></th>
+                <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -71,6 +73,22 @@ else
                         {
                             <form method="post" action="@Url.Action("DeleteAccount", "BankAccount", new { id = account.AccountId })">
                                 <button class="btn-delete"><i title="Delete" class="fas fa-cut"></i></button>
+                            </form>
+                        }
+                    </td>
+                    <td>
+                        @if (account.IsOwner)
+                        {
+                            <a href="@Url.Action("ViewTransactions", "Transaction", new { id = account.AccountId })">
+                                <i title="Transactions" class="fas fa-money-bill-wave"></i>
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        @if (account.IsOwner)
+                        {
+                            <form method="get" action="@Url.Action("UpdateBalance", "BankAccount", new { id = account.AccountId })">
+                                <button class="btn btn-success"><i title="Update Balance">Update</i></button>
                             </form>
                         }
                     </td>

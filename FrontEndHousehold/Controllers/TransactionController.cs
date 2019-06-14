@@ -1,6 +1,6 @@
 ﻿using FrontEndHousehold.Models.Domain;
 using FrontEndHousehold.Models.ViewModel;
-using FrontEndHousehold.Models.ViewModel.BankAccounts;
+using FrontEndHousehold.Models.ViewModel.Transactions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,16 +11,16 @@ using System.Web.Mvc;
 
 namespace FrontEndHousehold.Controllers
 {
-    public class BankAccountController : Controller
+    public class TransactionController : Controller
     {
-        // GET: BankAccount
+        // GET: Transaction
         public ActionResult Index()
         {
             return View();
         }
 
         [HttpGet]
-        public ActionResult ViewBankAccounts(int id)
+        public ActionResult ViewTransactions(int id)
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
@@ -31,7 +31,7 @@ namespace FrontEndHousehold.Controllers
 
             var token = cookie.Value;
 
-            var url = $"http://localhost:62357/api/bank-account/list-of-accounts/{id}";
+            var url = $"http://localhost:62357/api/transaction/list-of-transactions/{id}";
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization",
@@ -39,16 +39,12 @@ namespace FrontEndHousehold.Controllers
 
             var response = httpClient.GetAsync(url).Result;
 
-
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
-                var accounts = JsonConvert.DeserializeObject<List<BankAccount>>(data);
+                var transactions = JsonConvert.DeserializeObject<List<Transaction>>(data);
                 ViewBag.id = id;
-                var viewModel = accounts.Select(p => new ViewBankAccountViewModel(p)
-                {
-                    IsOwner = p.IsOwner
-                }).ToList();
+                var viewModel = transactions.Select(p => new ViewTransactionViewModel(p)).ToList();
 
                 return View(viewModel);
             }
@@ -60,7 +56,7 @@ namespace FrontEndHousehold.Controllers
         }
 
         [HttpGet]
-        public ActionResult CreateAccount(int id)
+        public ActionResult CreateTransaction(int id)
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
@@ -69,12 +65,35 @@ namespace FrontEndHousehold.Controllers
                 return RedirectToAction(nameof(AccountController.Login), "Account");
             }
 
-            ViewBag.id = id;
-            return View();
+            var token = cookie.Value;
+            var url = $"http://localhost:62357/api/category-management/get-categories/{id}";
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization",
+                $"Bearer {token}");
+
+            var response = httpClient.GetAsync(url).Result;
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var data = response.Content.ReadAsStringAsync().Result;
+                var categories = JsonConvert.DeserializeObject<List<Category>>(data);
+                ViewBag.id = id;
+                var viewModel = new CreateTransactionViewModel()
+                {
+                    Categories = new SelectList(categories, nameof(Category.CategoryId), nameof(Category.Name))
+                };
+
+                return View(viewModel);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
+                return View("Error");
+            }
         }
 
         [HttpPost]
-        public ActionResult CreateAccount(int id, CreateEditBankAccountViewModel model)
+        public ActionResult CreateTransaction(int id, CreateTransactionViewModel model)
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
@@ -91,15 +110,18 @@ namespace FrontEndHousehold.Controllers
 
             var token = cookie.Value;
 
-            var url = $"http://localhost:62357/api/bank-account/create-bankaccount/{id}";
+            var url = $"http://localhost:62357/api/transaction/create-transaction/{id}";
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization",
                 $"Bearer {token}");
 
             var parameters = new List<KeyValuePair<string, string>>();
-            parameters.Add(new KeyValuePair<string, string>("Name", model.Name));
+            parameters.Add(new KeyValuePair<string, string>("Title", model.Title));
             parameters.Add(new KeyValuePair<string, string>("Description", model.Description));
+            parameters.Add(new KeyValuePair<string, string>("DateOfTransaction", model.DateOfTransaction.ToString()));
+            parameters.Add(new KeyValuePair<string, string>("Amount", model.Amount.ToString()));
+            parameters.Add(new KeyValuePair<string, string>("CategoryId", model.CategoryId.ToString()));
 
             var encodedParameters = new FormUrlEncodedContent(parameters);
 
@@ -108,8 +130,8 @@ namespace FrontEndHousehold.Controllers
             if (response.StatusCode == System.Net.HttpStatusCode.Created)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
-                var result = JsonConvert.DeserializeObject<BankAccount>(data);
-                return RedirectToAction("ViewBankAccounts", new { id = result.HouseholdId });
+                var result = JsonConvert.DeserializeObject<Transaction>(data);
+                return RedirectToAction("ViewTransactions", new { id = result.BankAccountId });
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
@@ -132,9 +154,8 @@ namespace FrontEndHousehold.Controllers
                 return View(model);
             }
         }
-
         [HttpGet]
-        public ActionResult EditAccount(int id)
+        public ActionResult EditTransaction(int id)
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
@@ -145,7 +166,7 @@ namespace FrontEndHousehold.Controllers
 
             var token = cookie.Value;
 
-            var url = $"http://localhost:62357/api/bank-account/account-by-id/{id}";
+            var url = $"http://localhost:62357/api/transaction/transaction-by-id/{id}";
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization",
@@ -156,17 +177,19 @@ namespace FrontEndHousehold.Controllers
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
-                var result = JsonConvert.DeserializeObject<BankAccount>(data);
+                var result = JsonConvert.DeserializeObject<Transaction>(data);
 
                 if (!result.IsOwner)
                 {
                     return RedirectToAction(nameof(HouseholdController.Index), "Household");
                 }
 
-                var viewModel = new CreateEditBankAccountViewModel()
+                var viewModel = new EditTransactionViewModel()
                 {
-                    Name = result.Name,
-                    Description = result.Description
+                    Title = result.Title,
+                    Description = result.Description,
+                    DateOfTransaction = result.DateOfTransaction,
+                    Amount = result.Amount,
                 };
 
                 return View(viewModel);
@@ -178,7 +201,7 @@ namespace FrontEndHousehold.Controllers
         }
 
         [HttpPost]
-        public ActionResult EditAccount(int id, CreateEditBankAccountViewModel model)
+        public ActionResult EditTransaction(int id, EditTransactionViewModel model)
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
@@ -194,15 +217,17 @@ namespace FrontEndHousehold.Controllers
 
             var token = cookie.Value;
 
-            var url = $"http://localhost:62357/api/bank-account/edit-account/{id}";
+            var url = $"http://localhost:62357/api/transaction/edit-transaction/{id}";
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization",
                 $"Bearer {token}");
 
             var parameters = new List<KeyValuePair<string, string>>();
-            parameters.Add(new KeyValuePair<string, string>("Name", model.Name));
+            parameters.Add(new KeyValuePair<string, string>("Title", model.Title));
             parameters.Add(new KeyValuePair<string, string>("Description", model.Description));
+            parameters.Add(new KeyValuePair<string, string>("DateOfTransaction", model.DateOfTransaction.ToString()));
+            parameters.Add(new KeyValuePair<string, string>("Amount", model.Amount.ToString()));
 
             var encodedParameters = new FormUrlEncodedContent(parameters);
 
@@ -211,8 +236,8 @@ namespace FrontEndHousehold.Controllers
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 var data = response.Content.ReadAsStringAsync().Result;
-                var result = JsonConvert.DeserializeObject<BankAccount>(data);
-                return RedirectToAction("ViewBankAccounts", new { id = result.HouseholdId });
+                var result = JsonConvert.DeserializeObject<Transaction>(data);
+                return RedirectToAction("ViewTransactions", new { id = result.BankAccountId });
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
@@ -231,7 +256,7 @@ namespace FrontEndHousehold.Controllers
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return RedirectToAction("ViewBankAccounts");
+                return RedirectToAction("ViewTransactions");
             }
             else
             {
@@ -241,7 +266,7 @@ namespace FrontEndHousehold.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteAccount(int id)
+        public ActionResult DeleteTransaction(int id)
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
@@ -252,7 +277,7 @@ namespace FrontEndHousehold.Controllers
 
             var token = cookie.Value;
 
-            var url = $"http://localhost:62357/api/bank-account/delete-account/{id}";
+            var url = $"http://localhost:62357/api/transaction/delete-transaction/{id}";
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization",
@@ -262,8 +287,6 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                //var data = response.Content.ReadAsStringAsync().Result;
-                //var result = JsonConvert.DeserializeObject<BankAccount>(data);
                 return RedirectToAction(nameof(HouseholdController.ViewHousehold), "Household");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
@@ -283,7 +306,7 @@ namespace FrontEndHousehold.Controllers
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                TempData["Message"] = "It looks like this Account was deleted";
+                TempData["Message"] = "It looks like this Transaction was deleted";
                 return RedirectToAction(nameof(HouseholdController.ViewHousehold), "Household");
             }
             else
@@ -294,7 +317,7 @@ namespace FrontEndHousehold.Controllers
         }
 
         [HttpGet]
-        public ActionResult UpdateBalance(int id)
+        public ActionResult Void(int id)
         {
             var cookie = Request.Cookies["HouseholdCookie"];
 
@@ -305,7 +328,7 @@ namespace FrontEndHousehold.Controllers
 
             var token = cookie.Value;
 
-            var url = $"http://localhost:62357/api/bank-account/update-balance/{id}";
+            var url = $"http://localhost:62357/api/transaction/void-transaction/{id}";
 
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("Authorization",
@@ -313,35 +336,15 @@ namespace FrontEndHousehold.Controllers
 
             var response = httpClient.PutAsync(url, null).Result;
 
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            if(response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                return RedirectToAction(nameof(HouseholdController.ViewHousehold), "Household");
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-            {
-                var data = response.Content.ReadAsStringAsync().Result;
-                var result = JsonConvert.DeserializeObject<ErrorViewModel>(data);
-
-                foreach (var key in result.ModelState)
-                {
-                    foreach (var error in key.Value)
-                    {
-                        ModelState.AddModelError(key.Key, error);
-                    }
-                }
-
-                return View();
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                TempData["Message"] = "It looks like this Account was deleted";
                 return RedirectToAction(nameof(HouseholdController.ViewHousehold), "Household");
             }
             else
             {
-                ModelState.AddModelError("", "Sorry. An unexpected error has occured. Please try again later");
-                return View();
+                return View("Error");
             }
+
         }
     }
 }

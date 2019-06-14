@@ -38,10 +38,10 @@ namespace FrontEndHousehold.Controllers
                 $"Bearer {token}");
 
             var response = httpClient.GetAsync(url).Result;
-            var data = response.Content.ReadAsStringAsync().Result;
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
+                var data = response.Content.ReadAsStringAsync().Result;
                 var categories = JsonConvert.DeserializeObject<List<Category>>(data);
                 ViewBag.id = id;
                 var viewModel = categories.Select(p => new ViewCategoryViewModel(p)
@@ -85,6 +85,7 @@ namespace FrontEndHousehold.Controllers
             if (!ModelState.IsValid)
             {
                 ModelState.AddModelError(nameof(model), "Invalid Form Data");
+                return View(model);
             }
 
             var token = cookie.Value;
@@ -150,10 +151,10 @@ namespace FrontEndHousehold.Controllers
                 $"Bearer {token}");
 
             var response = httpClient.GetAsync(url).Result;
+            var data = response.Content.ReadAsStringAsync().Result;
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var data = response.Content.ReadAsStringAsync().Result;
                 var result = JsonConvert.DeserializeObject<Category>(data);
 
                 if (!result.IsOwner)
@@ -171,7 +172,7 @@ namespace FrontEndHousehold.Controllers
             }
             else
             {
-                return RedirectToAction("ViewCategories");
+                return RedirectToAction(nameof(HouseholdController.ViewHousehold), "Household");
             }
         }
 
@@ -281,8 +282,8 @@ namespace FrontEndHousehold.Controllers
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                TempData["Message"] = "It looks like this household was deleted";
-                return RedirectToAction("ViewCategories");
+                TempData["Message"] = "It looks like this Category was deleted";
+                return RedirectToAction(nameof(HouseholdController.ViewHousehold), "Household");
             }
             else
             {
