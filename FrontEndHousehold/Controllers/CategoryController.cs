@@ -44,7 +44,10 @@ namespace FrontEndHousehold.Controllers
             {
                 var categories = JsonConvert.DeserializeObject<List<Category>>(data);
                 ViewBag.id = id;
-                var viewModel = categories.Select(p => new ViewCategoryViewModel(p)).ToList();
+                var viewModel = categories.Select(p => new ViewCategoryViewModel(p)
+                {
+                    IsOwner = p.IsOwner
+                }).ToList();
 
                 return View(viewModel);
             }
@@ -102,7 +105,9 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.Created)
             {
-                return RedirectToAction("ViewCategories", new { id = id });
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<Category>(data);
+                return RedirectToAction("ViewCategories", new { id = result.HouseholdId });
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
@@ -203,7 +208,9 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                return RedirectToAction("ViewCategories", new { id = id });
+                var data = response.Content.ReadAsStringAsync().Result;
+                var result = JsonConvert.DeserializeObject<Category>(data);
+                return RedirectToAction("ViewCategories", new { id = result.HouseholdId });
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
@@ -222,7 +229,7 @@ namespace FrontEndHousehold.Controllers
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return RedirectToAction("ViewCategories");
+                return View("Error");
             }
             else
             {
@@ -253,7 +260,9 @@ namespace FrontEndHousehold.Controllers
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                return RedirectToAction("ViewCategories", new { id = id});
+                //var data = response.Content.ReadAsStringAsync().Result;
+                //var result = JsonConvert.DeserializeObject<Category>(data);
+                return RedirectToAction(nameof(HouseholdController.ViewHousehold), "Household");
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {

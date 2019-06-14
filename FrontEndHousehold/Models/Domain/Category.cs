@@ -12,8 +12,8 @@ namespace FrontEndHousehold.Models.Domain
         public string Description { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
-        public bool IsOwner { get; set; }        
-
+        public int HouseholdId { get; set; }
+        public bool IsOwner { get; set; }
         public Category()
         {
             DateCreated = DateTime.Now;

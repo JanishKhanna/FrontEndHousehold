@@ -13,6 +13,7 @@ namespace FrontEndHousehold.Models.ViewModel.Categories
         public string Description { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
+        public int HouseholdId { get; set; }
         public bool IsOwner { get; set; }
 
         public ViewCategoryViewModel()
@@ -22,12 +23,12 @@ namespace FrontEndHousehold.Models.ViewModel.Categories
 
         public ViewCategoryViewModel(Category category)
         {
+            HouseholdId = category.HouseholdId;
             CategoryId = category.CategoryId;
             Name = category.Name;
             Description = category.Description;
             DateCreated = category.DateCreated;
             DateUpdated = category.DateUpdated;
-            IsOwner = category.IsOwner;
         }
     }
 }

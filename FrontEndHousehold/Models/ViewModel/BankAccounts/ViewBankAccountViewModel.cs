@@ -14,8 +14,8 @@ namespace FrontEndHousehold.Models.ViewModel.BankAccounts
         public DateTime DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
         public decimal Balance { get; set; }
+        public int HouseholdId { get; set; }
         public bool IsOwner { get; set; }
-
         public ViewBankAccountViewModel()
         {
 
@@ -23,13 +23,13 @@ namespace FrontEndHousehold.Models.ViewModel.BankAccounts
 
         public ViewBankAccountViewModel(BankAccount account)
         {
+            HouseholdId = account.HouseholdId;
             AccountId = account.AccountId;
             Name = account.Name;
             Description = account.Description;
             DateCreated = account.DateCreated;
             DateUpdated = account.DateUpdated;
             Balance = account.Balance;
-            IsOwner = account.IsOwner;
         }
     }
 }
